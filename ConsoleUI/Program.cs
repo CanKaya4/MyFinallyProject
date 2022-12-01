@@ -33,11 +33,26 @@
  IProductDal interface'ini Concrete'de iş yapan bir sınıf haline getireceğiz. Yani Interface içerisindeki Add,Update,Delete ve GetAll
  Metotlarının içini Concrete içerisinde yazıyoruz. DataAccess içerisinde class oluşturuyoruz. Örnek olarak InMemoryProductDal
  InMemory : Teknolojinin ismi,Product : Çalışacağımız nesne, Dal ise DataAccess Layer
+ DataAccess katmanımızda IProduct dal isimli bir interface oluşturduk, içerisine operasyon metotlarımızı yazdık. Bellekte çalışacağımız için
+ InMemory isimli klasörümüzün içerisine InMemoryProductDal isimli classımızı oluşturup interface'i dahil ettik. Ve operasyonların içini yazdık.
+ Business katmanına geçiyoruz. İlk olarak her zaman önce bir interface yapıyoruz. Product nesne ile çalıştığımız için Business içerisinde inteface'leri IProductService ismi ile kullanıyoruz.
+ Bu interface ise iş katmanında kullanacağımız servis operasyonlarını içeriyor. Business katmanı hem Entity katmanını hem de DataAccess katmanını kullanıyor. 
+ Bundan dolayı Add reference diyip, DataAccess ve Entity katmanlarını referans veriyoruz.
+ Business içerisinde Concrete klasörüne ProductManager ismi ile class oluşturuyoruz. 
 */
+using Business.Abstract;
+using Business.Concrete;
+using DataAccess.Abstract;
+using DataAccess.Concrete.InMemory;
+
 class Program
 {
     static void Main(string[] args)
     {
-
+        ProductManager productDals= new ProductManager(new InMemoryProductDal());
+        foreach (var item in productDals.GetAll())
+        {
+            Console.WriteLine(item.ProductName);
+        }
     }
 }
