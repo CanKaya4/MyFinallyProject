@@ -39,6 +39,30 @@
  Bu interface ise iş katmanında kullanacağımız servis operasyonlarını içeriyor. Business katmanı hem Entity katmanını hem de DataAccess katmanını kullanıyor. 
  Bundan dolayı Add reference diyip, DataAccess ve Entity katmanlarını referans veriyoruz.
  Business içerisinde Concrete klasörüne ProductManager ismi ile class oluşturuyoruz. 
+
+
+ 2. Kısım
+DataAccess içerisinde kategorilerimiz için ICategoryDal isminde bir interface oluşturuyoruz.
+IProductDal içerisinde yazdığımız operasyonların aynısını ICategoryDal içerisinde de yapmamız gerekiyor.
+IProductDal içerisindeki metotların aynısı ICategoryDal için yapsam, değiştirmem gereken yerlerse sadece metotların içerisindeki Product parametresi
+yerine Category parametresini eklemek olacaktır. Yani sadece veri tiplerini değiştirmem yeterli olacaktır.
+Aslında biz bu yapıyı generic class olarak kurabiliriz. Yani gidipte her nesnemizin veri tipini değiştirmek yerine generic sınıflardan yararlanabiliriz.
+Generic bir interface yapsak, category veya product yerine generic T olsa. 
+Bu kuracağımız generic yapının adı Generic Repository Desing Patter, generic repository tasarım deseni.
+DataAccess katmanı içerisinde Abstract klasörüne IEntityRepository isminde generic bir interface ekliyorum. interface'imin generic olması için
+<T> ibaresini ekliyorum. T standarttır, Type kısaltmasıdır.
+IEntityReposiyory. I : Interface'i tanımlıyor, Entity : Nesnelerim, product, category veya ilerleyen zamanlarda customer gibi,  
+IProductDal içerisindeki operasyonlarımı IEntityRepository interface'ime koyuyorum. Parametre olarak T tipinde entity geri göndermesini istiyorum.
+T generictir, yani ben bu IEntityRepository interface'imi nerede inherit edersem, orada T tipini doldurmalıyım. T tipi product,category vs olabilir.
+Generi sınıfım içerisinde GetAll metodumun altında T tipinde Get metodu yazıyorum. GetAll hepsini getirecek metodumdu, Get ise filterelen datayı
+bana getirmeli. Bunun için Expression isimli yapıyı kullanıyoruz. Expression System.Linq kütüphanesinden gelir. Filtre = null demek
+Filtre vermeyedebilirsin demek. Bu ifadayi GetAll metodumuzda kullanacağız, eğerki bir filtre yoksa tüm ürünleri gösterebilelim diye.
+Oluşturduğum IEntityRepository interface'imi IProductDal'a inherit etsem ve T tipini Product olarak versem, aynı şekilde
+ICategoryDal için de yapıp T tipini Category olarak versem işlem tamamlanır. Projemizi bir adım daha ileri taşıdık bu işlem ile.
+Şimdi ise test edelim. Entity Katmanım içerisinde yeni bir nesne oluşturuyorum. İsmi Customer. Bu Customer classıma yine entity katmanımda, abstract
+klasörü altında bulunan IEntity interface'imden inherit ediyorum. Daha sonra DataAccess katmanımda ICustomerDal isimli bir interface oluşturuyorum.
+ICustomerDal içerisinde operasyonları yazmayacağım, çünkü bu işlem için oluşturduğum generic sınıfım mevcut. Tek yapmam gereken IEntityRepository'i
+ICustomerDal'a inherit edip T tipi olarak Customer belirtmek olacaktır.
 */
 using Business.Abstract;
 using Business.Concrete;
