@@ -63,6 +63,47 @@ ICategoryDal için de yapıp T tipini Category olarak versem işlem tamamlanır.
 klasörü altında bulunan IEntity interface'imden inherit ediyorum. Daha sonra DataAccess katmanımda ICustomerDal isimli bir interface oluşturuyorum.
 ICustomerDal içerisinde operasyonları yazmayacağım, çünkü bu işlem için oluşturduğum generic sınıfım mevcut. Tek yapmam gereken IEntityRepository'i
 ICustomerDal'a inherit edip T tipi olarak Customer belirtmek olacaktır.
+IEntityRepository benim generic sınıfımdı, ben bu generic sınıfı inherit eden interface veya classlarım için kendi tiplerini kullanmalırını istemiştim
+ama bu generic T interface'ime kurallar getirmek istiyorum. Örneğin T yerine sadece IEntity classlarım gelsin, yani veritabanı tablolarına karşılık gelen classlarım
+sadece generic sınıftan yararlansın gibi. Sadece veritabanı nesnesi vermemin sebebi, güncelleme,silme,ekleme vs işlemlerimi veritabanı nesnelerime uygularım.
+IEntity'de bir interface'idi ve benim veritabanı nesnelerimi tutuyordu. Bu kural getirme, yani kısıtlama işlemine generic constraint denir.
+generic constraint : generic kısıt demektir. Bunu yapabilmek için where T : bu şekilde yazıyorum, bu şu demek: T ne olabilir ?
+where T : class yazıyorum, T bir referans tip olmak zorunda demek bu, yani int,string gibi değer verilmesini engellemiş oluyoruz. çünkü int değer tiptir. class dediğimizde sadece referans tipler
+alınır. Class kuralımdan sonra IEntity kuralı getiyorum. bu şu demek, T ya IEntity olabilir ya da IEntityden implemente alan classlar olabilir. 
+3. kural olarak ise IEntity soyut bir nesne ve ben soyut T yerine soyut nesne verilsin istemiyorum. Bunu kontrol edebilmek için new() yazıyorum.
+Bu newlenebilir bi IEntity demek. IEntity'in kendisi interface'idi newlenemez. Ancak IEntity'den implemente alan veritabanı nesnelerim yani, Product
+Category ve Customer class'larım newlenebilir ve ben sadece bu class'larım T yerine verilebilsin istiyorum. Bundan dolayı new() diyorum.
+EntityFramework ile çalışmaya başlayacağız. InMemory'de alıştırma yaptık ve işin arkaplanını öğrendik, şimdi 1 adım daha ileri taşıyacağız.
+EntityFramework teknolojisi ile çalışacağım için DataAccess katmanımda Concrete klasörü altına bir EntityFramework klasörü oluşturuyorum. Bunun sebebi
+çalıştığımız teknolojileri klasörleme yapmamızdan kaynaklı. EfProductDal ve EfCategoryDal isminde 2 adet class oluşturuyorum. Ef : EntityFramework Product: Nesnem, dal ise dataacceslayer
+isimlendirme verirken kullandığım teknoloji, nesne adı, ve dal koyarız.EfProductDal içerisine IProductDal'ı implemente ediyorum. IProductDal'dan
+gelen operasyonlar ile EfProductDal classımı dolduruyorum.
+Orm : Veritabanındaki tabloları sanki class'mış gibi ilişkilendirip, bütün sql sorgularını linq ile yaptığımız bir ortamdır.
+Orm : Veritabanı nesneleri ile kodlar arasında bir ilişki-bağ kurup veritabanı işlerini yapma sürecidir.
+EntityFramework kodlarımızı DataAccess katmanı içerisinde yazacağız. DataAccess katmanına sağ tıklayıp manage NuGet packages diyoruz. 
+entityframework.sql yazıp install ediyoruz. Bunu DataAccess içerisinde Dependencies altında kurar. Dependencies : bağımlılıklar demek.
+Artık dataaccess katmanı içerisinde entityframeworks kodları yazabiliriz.
+Entityframework sürecindeki ilk aşama : Entity katmanımda oluşturduğum Product,Customer,Category classlarını veritabanım ile ilişkilendirmem gerekiyor.
+Bu ilişkilendirme işini yapabilmek için Context dediğimiz yapıyı kuruyoruz.
+Context : veritabanını ile kendi class'larımızı ilişklendirdiğimiz yerdir.
+Context dosyasını DataAccess katmanı içerisinde Concrete klasörü altındaki EntityFramework klasörüne class olarak ekliyoruz.
+İsimlendirmesi ise, şuan kullandığımız veritabanı Northwind olduğu için NorthwindContext olarak isimlendirme veriyoruz.
+Context olarak verdiğimiz isimlendirme Northwindcontext classımın context görevi gördüğü anlamına gelmez. Context görevini verebilmek için
+entityframework ile beraber gelen DbContext base sınıfını implement etmemiz gerekmekte. DbContext sınıfını implemente ettiğimizde
+NorthwindContext sınıfımız artık gerçekten context görevi almış olur.
+Context classımızın içerisinde veritabanımızın adresini belirtmemiz gerekmekte.
+override yazarak OnConfiguring metotunu getirmemiz lazım, içerisindeki base kısmını siliyoruz. oraya  optionsBuilder.UseSqlServer yazıyoruz. 
+Bunu yazarak sql server kullanacağımızı beliriyoruz. çift tırnak içerisine bir connection string yazacağız.
+Gerçek hayatta connection string olarak bir ip adresi girilir. Ama biz development ortamda olduğumuz için local'a bağlanıcaz. 
+bağlantı adresini verdik. Şimdi ise benim hangi nesnem veritabanındaki hangi nesneye karşılık gelecek ? bunu belirtmemiz gerekiyor.
+Bunun için proplar oluşturuyoruz, dbset tipinde bir nesne ile yapıyoruz. Dbset içerisine kendi nesnelerimizi, karşılığına ise veritabanı nesnesini yazıyoruz.
+Bu bağlantılarıda kurduktan sonra Context classı ile işimiz bitti. Artık entityframework kullanarak Product,Customer veya Category'ler ile ilgili
+kodlarımızı yazabiliriz.
+EfProductDal üzerinde add metotdu ile başlayalım.
+Öncelikle using bloğu oluşturuyoruz.
+using : C#'a özel bir yapıdır. bir class newlendiğinde garbage collector belli bir zaman sonra bellekten onu atar. using bloğu içerisine yazdığımız nesneler
+using bloğu bittiğinde anında bellekten referanslarını siler. Using içerisinde oluşturduğumuz context classını newliyoruz. Northwindcontext classımız newlenecek.
+var keywordü : karşısına ne atanırsa onun veri tipini alan bir keyworddür.
 */
 using Business.Abstract;
 using Business.Concrete;
