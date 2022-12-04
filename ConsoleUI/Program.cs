@@ -61,7 +61,7 @@ Oluşturduğum IEntityRepository interface'imi IProductDal'a inherit etsem ve T 
 ICategoryDal için de yapıp T tipini Category olarak versem işlem tamamlanır. Projemizi bir adım daha ileri taşıdık bu işlem ile.
 Şimdi ise test edelim. Entity Katmanım içerisinde yeni bir nesne oluşturuyorum. İsmi Customer. Bu Customer classıma yine entity katmanımda, abstract
 klasörü altında bulunan IEntity interface'imden inherit ediyorum. Daha sonra DataAccess katmanımda ICustomerDal isimli bir interface oluşturuyorum.
-ICustomerDal içerisinde operasyonları yazmayacağım, çünkü bu işlem için oluşturduğum generic sınıfım mevcut. Tek yapmam gereken IEntityRepository'i
+ICustomerDal içerisinde operasyonları yazmayacağım, çünkü bu işlem için oluşturduğum generic sınıfımda mevcut. Tek yapmam gereken IEntityRepository'i
 ICustomerDal'a inherit edip T tipi olarak Customer belirtmek olacaktır.
 IEntityRepository benim generic sınıfımdı, ben bu generic sınıfı inherit eden interface veya classlarım için kendi tiplerini kullanmalırını istemiştim
 ama bu generic T interface'ime kurallar getirmek istiyorum. Örneğin T yerine sadece IEntity classlarım gelsin, yani veritabanı tablolarına karşılık gelen classlarım
@@ -104,17 +104,22 @@ EfProductDal üzerinde add metotdu ile başlayalım.
 using : C#'a özel bir yapıdır. bir class newlendiğinde garbage collector belli bir zaman sonra bellekten onu atar. using bloğu içerisine yazdığımız nesneler
 using bloğu bittiğinde anında bellekten referanslarını siler. Using içerisinde oluşturduğumuz context classını newliyoruz. Northwindcontext classımız newlenecek.
 var keywordü : karşısına ne atanırsa onun veri tipini alan bir keyworddür.
+EfProductDal'ın içerisindeki operasyonların içerisini tamamladık. 
+Şimdi ise business'da değişklik olmacayak çünkü business classı entityframework'e bağımlı değil. Business'da ki yapımız değişmiyor.
+Console içerisinde direkt olarak yazdırılabilir. Sadece ProductManager'ı newlerken IProductDal tipinde bir nesne istiyor. Buraya EfProductDal yazdığımızda 
+veritabanından bilgileri çekecektir.
 */
 using Business.Abstract;
 using Business.Concrete;
 using DataAccess.Abstract;
+using DataAccess.Concrete.EntityFramework;
 using DataAccess.Concrete.InMemory;
 
 class Program
 {
     static void Main(string[] args)
     {
-        ProductManager productDals= new ProductManager(new InMemoryProductDal());
+        ProductManager productDals= new ProductManager(new EfProductDal());
         foreach (var item in productDals.GetAll())
         {
             Console.WriteLine(item.ProductName);

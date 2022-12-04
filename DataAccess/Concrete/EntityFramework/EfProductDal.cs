@@ -35,12 +35,20 @@ namespace DataAccess.Concrete.EntityFramework
 
         public Product Get(Expression<Func<Product, bool>> filter)
         {
-            throw new NotImplementedException();
+            using (NorthwindContext northwindContext = new NorthwindContext())
+            {
+                return northwindContext.Set<Product>().SingleOrDefault(filter);
+            }
         }
 
         public List<Product> GetAll(Expression<Func<Product, bool>> filter = null)
         {
-            throw new NotImplementedException();
+            //eğer bir filtre verilmemişse tüm ürünleri getir. if ile yazılacak  
+            using (NorthwindContext northwindContext = new NorthwindContext())
+            {
+                // Eğer filtre null ise burayı çalıştır                            //Eğer filtre verilmişse burayı çalıştır.
+                return filter == null ? northwindContext.Set<Product>().ToList() : northwindContext.Set<Product>().Where(filter).ToList();
+            }
         }
 
         public void Update(Product entity)
