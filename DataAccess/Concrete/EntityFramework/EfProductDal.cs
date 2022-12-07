@@ -46,8 +46,20 @@ namespace DataAccess.Concrete.EntityFramework
             //eğer bir filtre verilmemişse tüm ürünleri getir. if ile yazılacak  
             using (NorthwindContext northwindContext = new NorthwindContext())
             {
+                //ternary operatörü ile yazım
                 // Eğer filtre null ise burayı çalıştır                            //Eğer filtre verilmişse burayı çalıştır.
-                return filter == null ? northwindContext.Set<Product>().ToList() : northwindContext.Set<Product>().Where(filter).ToList();
+                // return filter == null ? northwindContext.Set<Product>().ToList() : northwindContext.Set<Product>().Where(filter).ToList();
+                
+
+                //Normal yazım
+                if (filter == null) 
+                {
+                    return northwindContext.Set<Product>().ToList();
+                }
+                else
+                {
+                    return northwindContext.Set<Product>().Where(filter).ToList();
+                }
             }
         }
 

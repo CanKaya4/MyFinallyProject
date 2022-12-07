@@ -108,6 +108,60 @@ EfProductDal'ın içerisindeki operasyonların içerisini tamamladık.
 Şimdi ise business'da değişklik olmacayak çünkü business classı entityframework'e bağımlı değil. Business'da ki yapımız değişmiyor.
 Console içerisinde direkt olarak yazdırılabilir. Sadece ProductManager'ı newlerken IProductDal tipinde bir nesne istiyor. Buraya EfProductDal yazdığımızda 
 veritabanından bilgileri çekecektir.
+
+Ado.Net : Veritabanına bağlanmızı sağlayan, veritabanını kontrol etmemizi sağlayan, veritabanına sorgu yazmamızı sağlayan bir kütüphanedir.
+Ado.Net ile yazdığımız kodlar biraz yorucu, günümüzde bu süreçleri kolaylaştırmak aynı zamanda nesne yönelimli programlama ilişkiyi daha da kolaylaştırmak
+adına çeşitli "ORM" dediğimiz yapıları kullanırız
+
+ORM : Object relational mapping : nesne ilişki bağdaştırması demek
+Entity Framework'de bir orm kütüphanesidir.
+Proje içerisinde oluşturduğumuz class'lar ile veritabanı tablolarını ilişkilendiririz.
+Bu ilişkilendirmeyi yapmak için, veritabanı tablosuna karşılı gelecek class'a ihtiyacımız var. Örnek olarak Product class'ı
+Veritabanı tabloları için isimlendirmelerde çoğul isimler kullanılmalıdır. Örn Product değil Products olarak isimlendirmelidir.
+Products tablosuna karşılık gelen class ise tekil yani Product olarak isimlendirilmlidir.
+Product class'ın içine prop girerek tamamladık
+Peki ben bu class'ım ile Veritabanı tablolarını nasıl ilişkilendireceğim ?  
+Bunun için Context dediğimiz bir yapı devreye giriyor. Context class'ı bizim veritabanı ile projemizdeki class arasında ilişki kurduğumuz class'dır
+Aynı zamanda Context classı veritabanına bağlantı kurduğumuz yerdir. İsimledirme olarak Veritabanı ismi + Context'dir
+Yani Örnek olarak NorthwindContext gibi isimlendirme yapılır. Ancak ismini context koymamız bu sınıfı bir context nesnesi yapmaz.
+isimlendirme okuma kolaylığı içindir. EntityFramework ile gelen DbContext sınıfını bu context sınıfına miras vermemiz gerekmekte.
+
+Context class'ı içerisinde onconfiguring metodunu override etmemiz gerekiyor.
+
+Override : üzerine yazmak demek, Aslında miras aldığımız DbContext classının içerisinde onconfiguring metodu hali hazırda mevcut. Ancak
+Bizim sql bağlantımız farklı bir yerde local'de bunun için onconfiguring metodunun üzerine yazarak bizim sql bağlantımızın olduğu yerde 
+çalışmasını sağlıyoruz. Dbcontext içerisinde bulunan onconfiguring metodu virtual keywordüne sahip. 
+
+virtual : bir classın içerisinde bir metodu yazıyoruz ama o classı inherit eden class isterse metodumun içeriğini değiştirebilir demek. 
+
+onconfiguring metodunu override ettiğimizde içerisinde base metodunu siliyoruz ve kendi içeriğimizi yazıyoruz.
+
+optionsBuilder.UseSqlServer yazıyoruz. Bu şu demek, biz onconfiguring metodu içerisinde sql kullanacağımızı söylüyoruz.
+EntityFramework sadece sql değil diğer veritbanları ile çalışabilcek özelliğe de sahiptir.
+optionsBuilder.UseSqlServer içerisine @"Server=(localdb)\MSSQLLocalDB;Database=Northwind;Trusted_Connection=true" yazıyoruz
+1- Serverımızın adresini belirtiyoruz.
+2- Server içerisinde hangi veritabanı ile çalışacağımızı belirtiyoruz.
+Veritabanına 2 farklı bağlantı şekli var. 1.si kullanıcı adı ve şifre ile. 2. ise localde ise login hesap ile bağlanma
+3- Bağlantı şeklini belirliyoruz. local'de veritabanımız bundan dolayı login ile bağlanıyoruz.
+
+onconfiguring metodu ile veritabanımıza bağladık, şimdi ise hangi class'ımızın hangi veritabanı tablosu ile ilişkilendirmek istediğimizi belirtmemiz gerek.
+bunun için prop diyoruz ve DbSet tipini kullanıyoruz.
+
+DbSet içreisine bizim nesnemizi, karşısına ise veritabanınada hangi tablo ile ilişkilendirilmesini istiyorsak onu yazıyoruz
+
+bunu da belirttikten sonra context dosyamız tamamdır.
+
+programcs içerisinde context dosyamızı newleyerek veritabamıza ulaşabiliriz.
+
+Veritabanlarındaki tablo isimlendirmeleri ile, tablolara karşılık gelecek class isimlendirmeleri her zaman aynı olmayabilir.
+bu durum için karşımıza çıkan kavram mapping kavramıdır. 
+Örnek olarak Employee tablosu için oluşturduğunuz nesnenin adı personel ve içeriği de employee tabosuna isimlendirme olarak denk gelmeyen
+proplar olduğunu varsayalım. Şöyle Employee tablosunda Firstname olsun biz personel listemizde bunu name olarak verelim. mapping uygulamak için
+yapmamız gereken olay, Context dosyası içerisinde tıpkı onconfiguring'e uyguladığımız gibi bir ovverride metod daha var
+bu metodun ismi OnModelCreating isimli bir metot.
+
+
+
 */
 using Business.Abstract;
 using Business.Concrete;
